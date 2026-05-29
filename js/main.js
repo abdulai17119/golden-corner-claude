@@ -1,6 +1,7 @@
 /* ============================================================
-   Golden Corner Printing Press LLC — Main JavaScript v4.0
+   Golden Corner Printing Press LLC — Main JavaScript v5.0
    Handles: nav, slideshow, fade-in, tabs, filter, form, stats
+   + anime.js v4 character animation on hero headline
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
-  // Highlight active nav link based on current page
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a, .mobile-nav a').forEach(link => {
     const href = link.getAttribute('href').split('/').pop().split('#')[0];
@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
      MOBILE NAV DRAWER
   ══════════════════════════════════ */
   const hamburger = document.getElementById('hamburger');
-  const mobileNav = document.getElementById('mobileNav');
-  const overlay   = document.getElementById('overlay');
-  const closeNav  = document.getElementById('closeNav');
+  const mobileNav  = document.getElementById('mobileNav');
+  const overlay    = document.getElementById('overlay');
+  const closeNav   = document.getElementById('closeNav');
 
   function openMenu()  { mobileNav.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeMenu() { mobileNav.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; }
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.mobile-nav a').forEach(a => a.addEventListener('click', closeMenu));
 
   /* ══════════════════════════════════
-     HERO SLIDESHOW (home page only)
+     HERO SLIDESHOW
   ══════════════════════════════════ */
   const slides = document.querySelectorAll('.hero-slide');
   const dots   = document.querySelectorAll('.hero-dot');
@@ -54,12 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
       slides[current].classList.remove('active');
       slides[current].classList.add('exit');
       if (dots[current]) dots[current].classList.remove('active');
-
       const prev = current;
       setTimeout(() => { slides[prev].classList.remove('exit'); }, 1500);
-
       current = (index + slides.length) % slides.length;
-      void slides[current].offsetWidth; // force reflow to restart CSS animation
+      void slides[current].offsetWidth;
       slides[current].classList.add('active');
       if (dots[current]) dots[current].classList.add('active');
     }
@@ -100,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const panels = document.querySelectorAll('.service-panel');
 
   if (stabs.length > 0) {
-    // Support hash-based activation: services.html#packaging
     const hash = window.location.hash.replace('#', '');
     if (hash && document.getElementById('panel-' + hash)) {
       stabs.forEach(s => s.classList.remove('active'));
@@ -110,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (t) t.classList.add('active');
       if (p) p.classList.add('active');
     }
-
     stabs.forEach(stab => {
       stab.addEventListener('click', () => {
         stabs.forEach(s => s.classList.remove('active'));
@@ -142,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ══════════════════════════════════
-     QUOTE FORM — success state
+     QUOTE FORM
   ══════════════════════════════════ */
   const quoteForm = document.getElementById('quoteForm');
   if (quoteForm) {
@@ -157,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ══════════════════════════════════
-     SMOOTH SCROLL (same-page anchors)
+     SMOOTH SCROLL
   ══════════════════════════════════ */
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', function (e) {
@@ -186,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const duration = 1800 + i * 150;
         const startAt  = performance.now() + i * 120;
         el.closest('.stat-item') && el.closest('.stat-item').classList.add('counted');
-
         (function tick(now) {
           const progress = Math.min(Math.max(0, now - startAt) / duration, 1);
           el.textContent = (target < 2 ? (easeOut(progress) * target).toFixed(1) : Math.floor(easeOut(progress) * target)) + suffix;
@@ -203,6 +198,115 @@ document.addEventListener('DOMContentLoaded', () => {
       }, { threshold: 0.4 });
       obs.observe(statsEl);
     }
+  }
+
+  /* ══════════════════════════════════
+     ANIME.JS v4 — SECTION TITLE CHAR ANIMATION
+     Targets .section-title elements as they scroll into view.
+     Each character bounces + rotates in, then loops.
+  ══════════════════════════════════ */
+  if (typeof animate !== 'undefined' && typeof splitText !== 'undefined') {
+    initAnimeTextAnimations();
+  } else {
+    // Dynamically load anime.js v4 from CDN then init
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/animejs@4.0.0/lib/anime.iife.min.js';
+    script.onload = () => {
+      // anime v4 IIFE exposes window.anime — destructure what we need
+      if (window.anime) {
+        window._animeAnimate  = window.anime.animate;
+        window._animeStagger  = window.anime.stagger;
+        window._animeSplit    = window.anime.utils && window.anime.utils.splitText
+                                ? window.anime.utils.splitText
+                                : null;
+        initAnimeTextAnimations();
+      }
+    };
+    document.head.appendChild(script);
+  }
+
+  function initAnimeTextAnimations() {
+
+    // We'll animate section titles when they enter the viewport
+    const sectionTitles = document.querySelectorAll('.section-title');
+    if (!sectionTitles.length) return;
+
+    // Helper: get animate + stagger + splitText from wherever they landed
+    function getAnime() {
+      if (typeof animate !== 'undefined')       return { animate, stagger, splitText };
+      if (window._animeAnimate)                 return { animate: window._animeAnimate, stagger: window._animeStagger, splitText: window._animeSplit };
+      if (window.anime) {
+        return {
+          animate:   window.anime.animate   || window.anime,
+          stagger:   window.anime.stagger,
+          splitText: window.anime.utils?.splitText || null,
+        };
+      }
+      return null;
+    }
+
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        io2.unobserve(entry.target);
+
+        const el = entry.target;
+        const lib = getAnime();
+        if (!lib || !lib.animate) return;
+
+        // Mark as animated so it won't re-run
+        if (el.dataset.charAnimated) return;
+        el.dataset.charAnimated = '1';
+
+        // If splitText is available use it, otherwise manually wrap chars
+        let chars;
+        if (lib.splitText) {
+          try {
+            const result = lib.splitText(el, { words: false, chars: true });
+            chars = result.chars;
+          } catch(e) { chars = null; }
+        }
+
+        if (!chars || !chars.length) {
+          // Manual char split fallback
+          const text = el.textContent;
+          el.textContent = '';
+          el.style.overflow = 'hidden';
+          chars = text.split('').map(ch => {
+            const span = document.createElement('span');
+            span.textContent = ch === ' ' ? '\u00A0' : ch;
+            span.style.display = 'inline-block';
+            span.style.willChange = 'transform, opacity';
+            el.appendChild(span);
+            return span;
+          });
+        }
+
+        // Run the animation — chars fly up with bounce + rotate, loop
+        lib.animate(chars, {
+          y: [
+            { to: '-0.6em', ease: 'outExpo',   duration: 500 },
+            { to: 0,        ease: 'outBounce',  duration: 700, delay: 80 }
+          ],
+          rotate: {
+            from: '-0.5turn',
+            delay: 0,
+          },
+          opacity: [
+            { to: 1, duration: 200 }
+          ],
+          delay: lib.stagger ? lib.stagger(45) : (el, i) => i * 45,
+          ease: 'inOutCirc',
+          loopDelay: 3500,
+          loop: true,
+        });
+      });
+    }, { threshold: 0.5 });
+
+    sectionTitles.forEach(el => {
+      el.style.overflow = 'visible';
+      io2.observe(el);
+    });
   }
 
 });

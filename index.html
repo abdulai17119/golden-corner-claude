@@ -13,8 +13,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
+  <!-- anime.js v4 -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.0.0/lib/anime.iife.min.js"></script>
 </head>
-<body class="">
+<body>
 
   <!-- NAV -->
   <nav id="navbar">
@@ -28,10 +30,10 @@
       </a>
       <ul class="nav-links">
         <li><a href="./index.html" class="active-link">Home</a></li>
-        <li><a href="./pages/about.html" class="">About</a></li>
-        <li><a href="./pages/services.html" class="">Services</a></li>
-        <li><a href="./pages/clients.html" class="">Clients</a></li>
-        <li><a href="./pages/contact.html" class="">Contact</a></li>
+        <li><a href="./pages/about.html">About</a></li>
+        <li><a href="./pages/services.html">Services</a></li>
+        <li><a href="./pages/clients.html">Clients</a></li>
+        <li><a href="./pages/contact.html">Contact</a></li>
       </ul>
       <a href="./pages/contact.html" class="btn btn-gold nav-cta">Get a Quote →</a>
       <div class="hamburger" id="hamburger" aria-label="Open menu">
@@ -60,23 +62,56 @@
       <div class="hero-slide" style="background-image:url('./assets/images/hero3.jpg')"></div>
     </div>
     <div class="hero-overlay"></div>
+    <!-- Gold accent line sweeps down on load -->
+    <div class="hero-accent-line"></div>
+
     <div class="container hero-container">
       <div class="hero-content">
-        <div class="hero-eyebrow"><span>Abu Dhabi, UAE &nbsp;·&nbsp; Est. 1985 &nbsp;·&nbsp; 40+ Years of Excellence</span></div>
-        <h1 class="hero-h1">All Printing<br>Solutions <em>Under<br>One Roof</em></h1>
+
+        <!-- Eyebrow slides in from left -->
+        <div class="hero-eyebrow">
+          <span>Abu Dhabi, UAE &nbsp;·&nbsp; Est. 1985 &nbsp;·&nbsp; 40+ Years of Excellence</span>
+        </div>
+
+        <!-- Each headline line snaps up from below -->
+        <h1 class="hero-h1">
+          <span class="hero-line-wrap"><span class="hero-line-inner reveal-1">All Printing</span></span>
+          <span class="hero-line-wrap"><span class="hero-line-inner reveal-2">Solutions <em>Under</em></span></span>
+          <span class="hero-line-wrap"><span class="hero-line-inner reveal-3"><em>One Roof</em></span></span>
+        </h1>
+
+        <!-- Subtitle fades up after headline -->
         <p class="hero-sub">From precision offset runs to vibrant digital production and bespoke packaging — Golden Corner Printing Press delivers results that exceed expectations, on time, every time.</p>
+
+        <!-- Buttons -->
         <div class="hero-actions">
           <a href="./pages/contact.html" class="btn btn-gold">Request a Quote →</a>
           <a href="./pages/services.html" class="btn btn-hero-outline">Our Services</a>
         </div>
+
+        <!-- Stats -->
         <div class="hero-stats" id="heroStats">
-          <div class="stat-item"><span class="stat-num" data-target="40" data-suffix="+">0</span><span class="stat-label">Years of Excellence</span></div>
-          <div class="stat-item"><span class="stat-num" data-target="500" data-suffix="+">0</span><span class="stat-label">Corporate Clients</span></div>
-          <div class="stat-item"><span class="stat-num" data-target="98" data-suffix="%">0</span><span class="stat-label">Client Retention</span></div>
-          <div class="stat-item"><span class="stat-num" data-target="1" data-suffix="M+">0</span><span class="stat-label">Jobs Completed</span></div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="40" data-suffix="+">0</span>
+            <span class="stat-label">Years of Excellence</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="500" data-suffix="+">0</span>
+            <span class="stat-label">Corporate Clients</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="98" data-suffix="%">0</span>
+            <span class="stat-label">Client Retention</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="1" data-suffix="M+">0</span>
+            <span class="stat-label">Jobs Completed</span>
+          </div>
         </div>
+
       </div>
     </div>
+
     <div class="hero-dots">
       <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
       <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
@@ -135,7 +170,7 @@
     </div>
   </section>
 
-  <!-- SERVICES PREVIEW — 6 cards -->
+  <!-- SERVICES PREVIEW -->
   <section id="services-preview" style="background:var(--white);padding:7rem 0">
     <div class="container">
       <div class="section-header fade-in" style="text-align:center">
@@ -145,74 +180,31 @@
         <p style="max-width:560px;margin:0 auto">End-to-end printing and packaging solutions for corporate excellence — from first concept to finished product.</p>
         <p class="section-tagline">" What You Can Imagine, We Can Print "</p>
       </div>
-            <div class="home-svc-grid-6 fade-in" style="transition-delay:0.15s">
-
+      <div class="home-svc-grid-6 fade-in" style="transition-delay:0.15s">
         <a href="./pages/services.html#printing" class="home-svc-card">
-          <div class="home-svc-img">
-            <img src="./assets/images/svc-offset-printing.jpg" alt="Offset Printing" loading="lazy">
-          </div>
-          <div class="home-svc-body">
-            <h3>Offset Printing</h3>
-            <p>High-volume printing for brochures, magazines, NCR pads, invoices, and posters with unmatched colour fidelity.</p>
-            <span class="home-svc-link">Explore →</span>
-          </div>
+          <div class="home-svc-img"><img src="./assets/images/svc-offset-printing.jpg" alt="Offset Printing" loading="lazy"></div>
+          <div class="home-svc-body"><h3>Offset Printing</h3><p>High-volume printing for brochures, magazines, NCR pads, invoices, and posters with unmatched colour fidelity.</p><span class="home-svc-link">Explore →</span></div>
         </a>
-
         <a href="./pages/services.html#printing" class="home-svc-card">
-          <div class="home-svc-img">
-            <img src="./assets/images/svc-digital-printing.jpg" alt="Digital Printing" loading="lazy">
-          </div>
-          <div class="home-svc-body">
-            <h3>Digital Printing</h3>
-            <p>Fast-turnaround digital production for books, flyers, catalogues, variable data campaigns, and short runs.</p>
-            <span class="home-svc-link">Explore →</span>
-          </div>
+          <div class="home-svc-img"><img src="./assets/images/svc-digital-printing.jpg" alt="Digital Printing" loading="lazy"></div>
+          <div class="home-svc-body"><h3>Digital Printing</h3><p>Fast-turnaround digital production for books, flyers, catalogues, variable data campaigns, and short runs.</p><span class="home-svc-link">Explore →</span></div>
         </a>
-
         <a href="./pages/services.html#printing" class="home-svc-card">
-          <div class="home-svc-img">
-            <img src="./assets/images/svc-screen-printing.jpg" alt="Screen & UV Printing" loading="lazy">
-          </div>
-          <div class="home-svc-body">
-            <h3>Screen &amp; UV Printing</h3>
-            <p>Premium silkscreen and UV printing on textiles, glass, acrylic, and plastic with bold, durable finishes.</p>
-            <span class="home-svc-link">Explore →</span>
-          </div>
+          <div class="home-svc-img"><img src="./assets/images/svc-screen-printing.jpg" alt="Screen & UV Printing" loading="lazy"></div>
+          <div class="home-svc-body"><h3>Screen &amp; UV Printing</h3><p>Premium silkscreen and UV printing on textiles, glass, acrylic, and plastic with bold, durable finishes.</p><span class="home-svc-link">Explore →</span></div>
         </a>
-
         <a href="./pages/services.html#packaging" class="home-svc-card">
-          <div class="home-svc-img">
-            <img src="./assets/images/svc-asset-2.jpg" alt="Paper Bags & Packaging" loading="lazy">
-          </div>
-          <div class="home-svc-body">
-            <h3>Paper Bags &amp; Packaging</h3>
-            <p>Custom printed paper bags, luxury carriers, and branded retail packaging in any size or finish.</p>
-            <span class="home-svc-link">Explore →</span>
-          </div>
+          <div class="home-svc-img"><img src="./assets/images/svc-asset-2.jpg" alt="Paper Bags & Packaging" loading="lazy"></div>
+          <div class="home-svc-body"><h3>Paper Bags &amp; Packaging</h3><p>Custom printed paper bags, luxury carriers, and branded retail packaging in any size or finish.</p><span class="home-svc-link">Explore →</span></div>
         </a>
-
         <a href="./pages/services.html#packaging" class="home-svc-card">
-          <div class="home-svc-img">
-            <img src="./assets/images/svc-asset-6.jpg" alt="Food & Meal Packaging" loading="lazy">
-          </div>
-          <div class="home-svc-body">
-            <h3>Food &amp; Meal Packaging</h3>
-            <p>Food-safe branded meal boxes, fast food containers, paper cups, and delivery packaging.</p>
-            <span class="home-svc-link">Explore →</span>
-          </div>
+          <div class="home-svc-img"><img src="./assets/images/svc-asset-6.jpg" alt="Food & Meal Packaging" loading="lazy"></div>
+          <div class="home-svc-body"><h3>Food &amp; Meal Packaging</h3><p>Food-safe branded meal boxes, fast food containers, paper cups, and delivery packaging.</p><span class="home-svc-link">Explore →</span></div>
         </a>
-
         <a href="./pages/services.html#promo" class="home-svc-card">
-          <div class="home-svc-img">
-            <img src="./assets/images/svc-asset-7.jpg" alt="Corporate & Promotional" loading="lazy">
-          </div>
-          <div class="home-svc-body">
-            <h3>Corporate &amp; Promotional</h3>
-            <p>Business cards, ID badges, lanyards, stationery sets, stamps, and branded merchandise.</p>
-            <span class="home-svc-link">Explore →</span>
-          </div>
+          <div class="home-svc-img"><img src="./assets/images/svc-asset-7.jpg" alt="Corporate & Promotional" loading="lazy"></div>
+          <div class="home-svc-body"><h3>Corporate &amp; Promotional</h3><p>Business cards, ID badges, lanyards, stationery sets, stamps, and branded merchandise.</p><span class="home-svc-link">Explore →</span></div>
         </a>
-
       </div>
       <div style="text-align:center;margin-top:2.5rem"><a href="./pages/services.html" class="btn btn-gold">View All Services →</a></div>
     </div>
@@ -243,13 +235,10 @@
         <div class="divider center" style="background:var(--gold)"></div>
         <p style="color:rgba(255,255,255,0.55);max-width:560px;margin:0 auto">Golden Corner Printing Press LLC is proud to be part of <strong style="color:var(--gold)">Edified Investments Holding</strong> — a diversified group serving the UAE across multiple sectors.</p>
       </div>
-
-      <!-- Holding banner -->
       <div class="group-holding fade-in" style="transition-delay:0.05s">
         <div class="group-holding-inner">
           <div class="group-holding-logo">
             <img src="./assets/images/logo-edified-holding.png" alt="Edified Investments Holding" class="group-holding-img">
-          </div>
           </div>
           <div class="group-holding-contact">
             <span>Corporate Office 2002, P1341 — Tower C, AL Douj Street, Abu Dhabi</span>
@@ -257,98 +246,39 @@
           </div>
         </div>
       </div>
-
-      <!-- Subsidiary logo grid -->
       <div class="group-logo-grid fade-in" style="transition-delay:0.15s">
-
-        <!-- Golden Corner — active (use main logo) -->
         <div class="group-logo-card group-logo-card--active">
-          <div class="group-logo-img-wrap">
-            <img src="./assets/images/logo.png" alt="Golden Corner Printing Press LLC">
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">Golden Corner Printing Press LLC</span>
-            <span class="group-logo-tag">Printing &amp; Packaging</span>
-          </div>
+          <div class="group-logo-img-wrap"><img src="./assets/images/logo.png" alt="Golden Corner Printing Press LLC"></div>
+          <div class="group-logo-info"><span class="group-logo-name">Golden Corner Printing Press LLC</span><span class="group-logo-tag">Printing &amp; Packaging</span></div>
         </div>
-
-        <!-- Lighthouse -->
         <div class="group-logo-card">
-          <div class="group-logo-img-wrap">
-            <img src="./assets/images/logo-lighthouse.png" alt="Lighthouse Electrical LLC">
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">Lighthouse Electrical LLC</span>
-            <span class="group-logo-tag">Electrical Services</span>
-          </div>
+          <div class="group-logo-img-wrap"><img src="./assets/images/logo-lighthouse.png" alt="Lighthouse Electrical LLC"></div>
+          <div class="group-logo-info"><span class="group-logo-name">Lighthouse Electrical LLC</span><span class="group-logo-tag">Electrical Services</span></div>
         </div>
-
-        <!-- BookKeeper -->
         <div class="group-logo-card">
-          <div class="group-logo-img-wrap">
-            <img src="./assets/images/logo-bookkeeper.png" alt="BookKeeper Accounting Services LLC">
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">BookKeeper Accounting Services</span>
-            <span class="group-logo-tag">Accounting Services</span>
-          </div>
+          <div class="group-logo-img-wrap"><img src="./assets/images/logo-bookkeeper.png" alt="BookKeeper Accounting Services LLC"></div>
+          <div class="group-logo-info"><span class="group-logo-name">BookKeeper Accounting Services</span><span class="group-logo-tag">Accounting Services</span></div>
         </div>
-
-        <!-- SMA Advisory -->
         <div class="group-logo-card">
-          <div class="group-logo-img-wrap">
-            <img src="./assets/images/logo-sma-advisory.png" alt="SMA Advisory Services">
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">SMA Advisory Services</span>
-            <span class="group-logo-tag">Advisory Services</span>
-          </div>
+          <div class="group-logo-img-wrap"><img src="./assets/images/logo-sma-advisory.png" alt="SMA Advisory Services"></div>
+          <div class="group-logo-info"><span class="group-logo-name">SMA Advisory Services</span><span class="group-logo-tag">Advisory Services</span></div>
         </div>
-
-        <!-- Royals Advertising -->
         <div class="group-logo-card">
-          <div class="group-logo-img-wrap">
-            <img src="./assets/images/logo-royals-alt.png" alt="Royals Advertising LLC">
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">Royals Advertising LLC</span>
-            <span class="group-logo-tag">Advertising</span>
-          </div>
+          <div class="group-logo-img-wrap"><img src="./assets/images/logo-royals-alt.png" alt="Royals Advertising LLC"></div>
+          <div class="group-logo-info"><span class="group-logo-name">Royals Advertising LLC</span><span class="group-logo-tag">Advertising</span></div>
         </div>
-
-        <!-- Polaroid -->
         <div class="group-logo-card">
-          <div class="group-logo-img-wrap">
-            <img src="./assets/images/logo-royals.png" alt="Polaroid General Trading">
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">Polaroid General Trading</span>
-            <span class="group-logo-tag">General Trading</span>
-          </div>
+          <div class="group-logo-img-wrap"><img src="./assets/images/logo-royals.png" alt="Polaroid General Trading"></div>
+          <div class="group-logo-info"><span class="group-logo-name">Polaroid General Trading</span><span class="group-logo-tag">General Trading</span></div>
         </div>
-
-        <!-- Direct Hire (no logo yet) -->
         <div class="group-logo-card">
-          <div class="group-logo-img-wrap group-logo-text-only">
-            <span>Direct Hire</span>
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">Direct Hire Employment Services</span>
-            <span class="group-logo-tag">Employment Services</span>
-          </div>
+          <div class="group-logo-img-wrap group-logo-text-only"><span>Direct Hire</span></div>
+          <div class="group-logo-info"><span class="group-logo-name">Direct Hire Employment Services</span><span class="group-logo-tag">Employment Services</span></div>
         </div>
-
-        <!-- Edified Financial (no logo yet) -->
         <div class="group-logo-card">
-          <div class="group-logo-img-wrap group-logo-text-only">
-            <span>Edified Financial</span>
-          </div>
-          <div class="group-logo-info">
-            <span class="group-logo-name">Edified Financial Consultancy</span>
-            <span class="group-logo-tag">Financial Consultancy</span>
-          </div>
+          <div class="group-logo-img-wrap group-logo-text-only"><span>Edified Financial</span></div>
+          <div class="group-logo-info"><span class="group-logo-name">Edified Financial Consultancy</span><span class="group-logo-tag">Financial Consultancy</span></div>
         </div>
-
       </div>
     </div>
   </section>
