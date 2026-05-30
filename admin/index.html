@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Golden Corner Printing Press</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../js/supabase-config.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#C9A84C;--gold-light:#E8C97A;--gold-dark:#8B6914;
+      --black:#0A0A0A;--dark:#141414;--mid:#1e1e1e;
+      --text:#f0f0f0;--muted:rgba(255,255,255,0.45);
+      --border:rgba(201,168,76,0.2);
+      --serif:'Cormorant Garamond',serif;
+      --sans:'DM Sans',sans-serif;
+    }
+    html,body{height:100%;font-family:var(--sans);background:var(--black);color:var(--text);font-size:14px}
+    a{color:var(--gold);text-decoration:none}
+    #loginScreen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--black);z-index:100}
+    .login-box{width:100%;max-width:400px;padding:3rem;background:#111;border:1px solid var(--border)}
+    .login-box h1{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:#fff;margin-bottom:0.5rem}
+    .login-box p{color:var(--muted);font-size:13px;margin-bottom:2rem}
+    .gold-bar{width:40px;height:2px;background:var(--gold);margin-bottom:1.5rem}
+    .f-group{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
+    .f-group label{font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted)}
+    .f-group input{background:#1a1a1a;border:1px solid var(--border);color:#fff;padding:12px 14px;font-family:var(--sans);font-size:14px;outline:none;transition:border-color 0.2s}
+    .f-group input:focus{border-color:var(--gold)}
+    .btn-login{width:100%;padding:14px;margin-top:1rem;background:var(--gold);color:var(--black);border:none;font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.2s}
+    .btn-login:hover{background:var(--gold-dark);color:#fff}
+    .login-error{color:#ef5350;font-size:12px;margin-top:0.75rem;display:none;padding:0.5rem 0.75rem;background:rgba(239,83,80,0.08);border-left:3px solid #ef5350}
+    #app{display:none;min-height:100vh;flex-direction:column}
+    .topbar{background:#111;border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+    .topbar-brand{display:flex;align-items:center;gap:12px}
+    .topbar-brand .dot{width:8px;height:8px;background:var(--gold);border-radius:50%}
+    .topbar-brand span{font-family:var(--serif);font-size:1.1rem;color:#fff}
+    .topbar-brand small{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);display:block;margin-top:1px}
+    .topbar-right{display:flex;align-items:center;gap:1.5rem}
+    .topbar-right .admin-name{font-size:12px;color:var(--muted)}
+    .btn-logout{padding:7px 18px;border:1px solid var(--border);background:none;color:var(--muted);font-family:var(--sans);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+    .btn-logout:hover{border-color:var(--gold);color:var(--gold)}
+    .main{flex:1;padding:2.5rem 2rem;max-width:1300px;margin:0 auto;width:100%}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem}
+    .stat-card{background:#111;border:1px solid var(--border);padding:1.5rem;border-top:3px solid var(--gold)}
+    .stat-card .val{font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--gold);line-height:1}
+    .stat-card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-top:6px}
+    .stat-card.new-card{border-top-color:#ef5350}
+    .stat-card.new-card .val{color:#ef5350}
+    .filters{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+    .filters h2{font-family:var(--serif);font-size:1.4rem;font-weight:300;color:#fff;flex:1}
+    .filter-btn{padding:7px 18px;border:1px solid var(--border);background:none;color:var(--muted);font-family:var(--sans);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+    .filter-btn.active,.filter-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.06)}
+    .search-input{background:#111;border:1px solid var(--border);color:#fff;padding:7px 14px;font-family:var(--sans);font-size:13px;outline:none;width:220px;transition:border-color 0.2s}
+    .search-input:focus{border-color:var(--gold)}
+    .search-input::placeholder{color:rgba(255,255,255,0.25)}
+    .table-wrap{background:#111;border:1px solid var(--border);overflow-x:auto}
+    table{width:100%;border-collapse:collapse}
+    thead tr{border-bottom:2px solid var(--border)}
+    thead th{padding:1rem 1.25rem;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+    tbody tr{border-bottom:1px solid rgba(201,168,76,0.08);transition:background 0.15s}
+    tbody tr:hover{background:rgba(255,255,255,0.03)}
+    tbody tr:last-child{border-bottom:none}
+    td{padding:1rem 1.25rem;font-size:13px;color:rgba(255,255,255,0.75);vertical-align:top}
+    td.name{font-weight:600;color:#fff}
+    td.email a{color:var(--gold)}
+    td.msg{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+    td.date{color:var(--muted);font-size:12px;white-space:nowrap}
+    .status-select{background:#1a1a1a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-family:var(--sans);font-size:12px;cursor:pointer;outline:none}
+    .status-select:focus{border-color:var(--gold)}
+    .table-empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
+    .table-empty .icon{font-size:2.5rem;margin-bottom:1rem}
+    .spinner{width:32px;height:32px;border:2px solid rgba(201,168,76,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;margin:3rem auto}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:center;justify-content:center;padding:2rem}
+    .modal-bg.open{display:flex}
+    .modal{background:#111;border:1px solid var(--border);width:100%;max-width:560px;max-height:85vh;overflow-y:auto}
+    .modal-header{padding:1.5rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .modal-header h3{font-family:var(--serif);font-size:1.3rem;font-weight:400;color:#fff}
+    .modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;line-height:1}
+    .modal-close:hover{color:#fff}
+    .modal-body{padding:1.75rem 2rem}
+    .modal-row{display:grid;grid-template-columns:120px 1fr;gap:0.5rem;margin-bottom:1rem;align-items:start}
+    .modal-row label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding-top:2px}
+    .modal-row span{font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6}
+    .modal-msg{background:#1a1a1a;border:1px solid var(--border);padding:1rem;margin-top:0.5rem;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.75;white-space:pre-wrap}
+    .modal-footer{padding:1.25rem 2rem;border-top:1px solid var(--border);display:flex;gap:1rem;justify-content:flex-end}
+    .btn-sm{padding:9px 20px;font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all 0.2s}
+    .btn-sm:hover{border-color:var(--gold);color:var(--gold)}
+    .btn-sm.gold{background:var(--gold);color:var(--black);border-color:var(--gold)}
+    .btn-sm.gold:hover{background:var(--gold-dark);color:#fff}
+    @media(max-width:768px){
+      .stats-row{grid-template-columns:1fr 1fr}
+      .filters{flex-direction:column;align-items:flex-start}
+      .search-input{width:100%}
+      td.msg,td.company{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>Admin Login</h1>
+    <div class="gold-bar"></div>
+    <p>Golden Corner Printing Press LLC — Quote Dashboard</p>
+    <div class="f-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@gcpp.ae" autocomplete="email">
+    </div>
+    <div class="f-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" id="loginBtn">Sign In →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="dot"></div>
+      <div><span>Golden Corner</span><small>Quote Dashboard</small></div>
+    </div>
+    <div class="topbar-right">
+      <span class="admin-name" id="adminEmail"></span>
+      <button class="btn-logout" id="logoutBtn">Sign Out</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-card new-card"><div class="val" id="statNew">—</div><div class="lbl">New Requests</div></div>
+      <div class="stat-card"><div class="val" id="statTotal">—</div><div class="lbl">Total Quotes</div></div>
+      <div class="stat-card"><div class="val" id="statToday">—</div><div class="lbl">Today</div></div>
+      <div class="stat-card"><div class="val" id="statResponded">—</div><div class="lbl">Responded</div></div>
+    </div>
+    <div class="filters">
+      <h2>Quote Requests</h2>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search name, email, company…">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="new">New</button>
+      <button class="filter-btn" data-filter="read">Read</button>
+      <button class="filter-btn" data-filter="responded">Responded</button>
+      <button class="filter-btn" data-filter="closed">Closed</button>
+    </div>
+    <div class="table-wrap">
+      <div class="spinner" id="loadingSpinner"></div>
+      <table id="quotesTable" style="display:none">
+        <thead>
+          <tr>
+            <th>Date</th><th>Name</th><th>Email</th>
+            <th>Company</th><th>Service</th><th>Message</th>
+            <th>Status</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="quotesBody"></tbody>
+      </table>
+      <div class="table-empty" id="emptyState" style="display:none">
+        <div class="icon">📋</div>
+        <p>No quote requests found</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Quote Request</h3>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-sm" id="modalCloseBtn">Close</button>
+      <button class="btn-sm gold" id="modalEmailBtn">Send Email</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+let allQuotes = [], currentFilter = 'all', currentSearch = '', selectedQuote = null;
+
+/* AUTH */
+async function checkSession() {
+  const { data:{ session } } = await db.auth.getSession();
+  if (session) showApp(session.user.email);
+}
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  const btn      = document.getElementById('loginBtn');
+  btn.textContent = 'Signing in…'; btn.disabled = true; errEl.style.display = 'none';
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) {
+    errEl.textContent = error.message; errEl.style.display = 'block';
+    btn.textContent = 'Sign In →'; btn.disabled = false;
+  } else { showApp(data.user.email); }
+});
+
+document.getElementById('loginPassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await db.auth.signOut();
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+});
+
+function showApp(email) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('adminEmail').textContent = email;
+  loadQuotes();
+}
+
+/* DATA */
+async function loadQuotes() {
+  document.getElementById('loadingSpinner').style.display = 'block';
+  document.getElementById('quotesTable').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+  const { data, error } = await db.from('quotes').select('*').order('created_at', { ascending: false });
+  document.getElementById('loadingSpinner').style.display = 'none';
+  if (error) { console.error(error); return; }
+  allQuotes = data || [];
+  updateStats(); renderTable();
+}
+
+function updateStats() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('statTotal').textContent     = allQuotes.length;
+  document.getElementById('statNew').textContent       = allQuotes.filter(q => q.status === 'new').length;
+  document.getElementById('statToday').textContent     = allQuotes.filter(q => q.created_at.startsWith(today)).length;
+  document.getElementById('statResponded').textContent = allQuotes.filter(q => q.status === 'responded').length;
+}
+
+function renderTable() {
+  let filtered = allQuotes;
+  if (currentFilter !== 'all') filtered = filtered.filter(q => q.status === currentFilter);
+  if (currentSearch) {
+    const s = currentSearch.toLowerCase();
+    filtered = filtered.filter(q =>
+      (q.first_name+' '+q.last_name).toLowerCase().includes(s) ||
+      (q.email||'').toLowerCase().includes(s) ||
+      (q.company||'').toLowerCase().includes(s) ||
+      (q.service||'').toLowerCase().includes(s)
+    );
+  }
+  const tbody = document.getElementById('quotesBody');
+  const table = document.getElementById('quotesTable');
+  const empty = document.getElementById('emptyState');
+  if (!filtered.length) { table.style.display='none'; empty.style.display='block'; return; }
+  table.style.display = 'table'; empty.style.display = 'none';
+  tbody.innerHTML = filtered.map(q => {
+    const d    = new Date(q.created_at);
+    const date = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const time = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td class="date">${date}<br><span style="font-size:11px;opacity:0.5">${time}</span></td>
+      <td class="name">${esc(q.first_name)} ${esc(q.last_name)}</td>
+      <td class="email"><a href="mailto:${esc(q.email)}">${esc(q.email)}</a></td>
+      <td class="company">${esc(q.company||'—')}</td>
+      <td>${esc(q.service||'—')}</td>
+      <td class="msg" title="${esc(q.message||'')}">${esc(q.message||'—')}</td>
+      <td>
+        <select class="status-select" onchange="updateStatus('${q.id}',this.value)">
+          <option value="new"       ${q.status==='new'       ?'selected':''}>🔴 New</option>
+          <option value="read"      ${q.status==='read'      ?'selected':''}>🟡 Read</option>
+          <option value="responded" ${q.status==='responded' ?'selected':''}>🔵 Responded</option>
+          <option value="closed"    ${q.status==='closed'    ?'selected':''}>⚪ Closed</option>
+        </select>
+      </td>
+      <td><button class="btn-sm" onclick="openModal('${q.id}')" style="padding:6px 14px;font-size:11px">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* STATUS */
+async function updateStatus(id, status) {
+  const { error } = await db.from('quotes').update({ status }).eq('id', id);
+  if (!error) { const q = allQuotes.find(x=>x.id===id); if(q) q.status=status; updateStats(); }
+}
+
+/* FILTERS */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); currentFilter = btn.dataset.filter; renderTable();
+  });
+});
+document.getElementById('searchInput').addEventListener('input', e => {
+  currentSearch = e.target.value.trim(); renderTable();
+});
+
+/* MODAL */
+function openModal(id) {
+  selectedQuote = allQuotes.find(q=>q.id===id);
+  if (!selectedQuote) return;
+  const q = selectedQuote;
+  const d = new Date(q.created_at).toLocaleString('en-GB',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('modalTitle').textContent = `${q.first_name} ${q.last_name}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-row"><label>Date</label><span>${d}</span></div>
+    <div class="modal-row"><label>Name</label><span>${esc(q.first_name)} ${esc(q.last_name)}</span></div>
+    <div class="modal-row"><label>Email</label><span><a href="mailto:${esc(q.email)}">${esc(q.email)}</a></span></div>
+    <div class="modal-row"><label>Phone</label><span>${q.phone?`<a href="tel:${esc(q.phone)}">${esc(q.phone)}</a>`:'—'}</span></div>
+    <div class="modal-row"><label>Company</label><span>${esc(q.company||'—')}</span></div>
+    <div class="modal-row"><label>Service</label><span>${esc(q.service||'—')}</span></div>
+    <div class="modal-row"><label>Status</label><span>
+      <select class="status-select" onchange="updateStatus('${q.id}',this.value)">
+        <option value="new"       ${q.status==='new'       ?'selected':''}>🔴 New</option>
+        <option value="read"      ${q.status==='read'      ?'selected':''}>🟡 Read</option>
+        <option value="responded" ${q.status==='responded' ?'selected':''}>🔵 Responded</option>
+        <option value="closed"    ${q.status==='closed'    ?'selected':''}>⚪ Closed</option>
+      </select>
+    </span></div>
+    <div style="margin-top:1rem">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.5rem">Message</div>
+      <div class="modal-msg">${esc(q.message||'No message provided')}</div>
+    </div>`;
+  if (q.status === 'new') updateStatus(q.id, 'read');
+  document.getElementById('modalBg').classList.add('open');
+}
+
+['modalClose','modalCloseBtn'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => document.getElementById('modalBg').classList.remove('open'));
+});
+document.getElementById('modalBg').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalBg')) document.getElementById('modalBg').classList.remove('open');
+});
+document.getElementById('modalEmailBtn').addEventListener('click', () => {
+  if (!selectedQuote) return;
+  const q = selectedQuote;
+  const sub  = encodeURIComponent('Re: Your Quote Request — Golden Corner Printing Press');
+  const body = encodeURIComponent(`Dear ${q.first_name},\n\nThank you for your enquiry regarding ${q.service||'our printing services'}.\n\nWe would be happy to assist you.\n\nBest regards,\nGolden Corner Printing Press LLC\n+971 2 658 7770`);
+  window.open(`mailto:${q.email}?subject=${sub}&body=${body}`);
+});
+
+checkSession();
+</script>
+</body>
+</html>
